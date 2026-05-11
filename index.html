@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V8实盘</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background:#f0f2f5; color:#1a1a1a; }
+.top { background:linear-gradient(135deg, #0f0c29, #302b63, #24243e); color:#fff; padding:16px; text-align:center; }
+.top h1 { font-size:1.1rem; margin-bottom:2px; }
+.top .sub { font-size:0.7rem; opacity:0.7; }
+.mbar { display:flex; flex-wrap:wrap; gap:6px; padding:10px 12px; justify-content:center; }
+.mc { background:#fff; border-radius:8px; padding:10px 14px; text-align:center; min-width:80px; box-shadow:0 1px 2px rgba(0,0,0,0.06); }
+.mc-l { font-size:0.65rem; color:#888; }
+.mc-v { font-size:0.95rem; font-weight:700; }
+.up { color:#c62828; }
+.dn { color:#2e7d32; }
+
+.ct { max-width:800px; margin:0 auto; padding:8px 12px; }
+.card { background:#fff; border-radius:10px; padding:12px 14px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.card h2 { font-size:0.9rem; color:#302b63; margin-bottom:10px; border-bottom:2px solid #4a6cf7; padding-bottom:6px; }
+
+table { width:100%; border-collapse:collapse; font-size:0.73rem; }
+th { background:#f6f8fa; color:#555; font-weight:500; padding:5px 3px; text-align:left; border-bottom:1px solid #ddd; white-space:nowrap; }
+td { padding:4px 3px; border-bottom:1px solid #f0f0f0; }
+.n { text-align:right; font-variant-numeric:tabular-nums; }
+.rs { font-size:0.65rem; color:#888; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tbl-w { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+.tg { display:inline-block; padding:1px 5px; border-radius:3px; font-size:0.65rem; font-weight:600; }
+.tg-buy { background:#e3f2fd; color:#1565c0; }
+.tg-sell { background:#fce4ec; color:#c62828; }
+.bdg { display:inline-block; padding:1px 5px; border-radius:3px; font-size:0.6rem; }
+.bdg-today { background:#fff3cd; color:#856404; }
+.r-buy { border-left:3px solid #2196f3; }
+.r-sell { border-left:3px solid #f44336; }
+tr.hl { background:#fffde7; }
+
+.day-hd { cursor:pointer; padding:8px 10px; background:#fafbfc; border-radius:6px; margin:4px 0; font-size:0.78rem; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.day-hd:hover { background:#f0f2f5; }
+.day-date { font-weight:600; }
+.day-sum { font-size:0.7rem; color:#888; }
+details { margin:2px 0; }
+
+.chart-box { width:100%; height:180px; margin:8px 0; }
+.foot { text-align:center; font-size:0.65rem; color:#aaa; padding:12px 0; }
+.tabs { display:flex; gap:4px; margin-bottom:10px; flex-wrap:wrap; }
+.tab { padding:5px 12px; border-radius:14px; font-size:0.72rem; cursor:pointer; background:#eee; border:0; }
+.tab-on { background:#302b63; color:#fff; }
+.panel { display:none; }
+.panel-on { display:block; }
+
+@media (max-width:600px) {
+  .ct { padding:4px 6px; }
+  .card { padding:8px 10px; margin-bottom:6px; border-radius:8px; }
+  table { font-size:0.68rem; }
+  th, td { padding:3px 2px; }
+  .mc { min-width:60px; padding:8px; }
+  .mc-l { font-size:0.6rem; }
+  .mc-v { font-size:0.8rem; }
+  .rs { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>V8策略 模拟实盘</h1>
+  <div class="sub">更新于 2026-05-11 23:32 &nbsp;|&nbsp; 初始资金 500,000</div>
+</div>
+
+<div class="mbar"><div class="mc"><div class="mc-l">初始资金</div><div class="mc-v">500,000</div></div><div class="mc"><div class="mc-l">总资产</div><div class="mc-v">499,896.24</div></div><div class="mc"><div class="mc-l">总收益</div><div class="mc-v dn">-0.02%</div></div><div class="mc"><div class="mc-l">持仓市值</div><div class="mc-v">399,093.00</div></div><div class="mc"><div class="mc-l">现金</div><div class="mc-v">100,803.24</div></div>
+  <div class="mc"><div class="mc-l">交易笔数</div><div class="mc-v">5</div></div>
+  <div class="mc"><div class="mc-l">胜率</div><div class="mc-v">0%</div></div>
+  <div class="mc"><div class="mc-l">累计费用</div><div class="mc-v">103.77</div></div>
+</div>
+
+<div class="ct">
+
+  <!-- Tab切换 -->
+  <div class="tabs">
+    <button class="tab tab-on" onclick="switchTab('daily')">每日交割</button>
+    <button class="tab" onclick="switchTab('signals')">今日信号</button>
+    <button class="tab" onclick="switchTab('positions')">持仓</button>
+    <button class="tab" onclick="switchTab('all')">全部记录</button>
+  </div>
+
+  <!-- 每日交割 -->
+  <div id="pnl-daily" class="panel panel-on">
+    
+  <details open>
+    <summary class="day-hd"><span class="day-date">2026-05-11</span> <span class="bdg bdg-today">今天</span><span class="day-sum">5笔 | 买399,093 卖0 | 费103.77 | 总资产: 499,896  收益率: -0.02%</span></summary>
+    <div class="tbl-w"><table>
+      <thead><tr><th>方向</th><th>代码</th><th>名称</th><th class="n">股数</th><th class="n">价格</th><th class="n">金额</th><th class="n">费用</th><th>说明</th></tr></thead>
+      <tbody><tr class="r-buy"><td><span class="tg tg-buy">BUY</span></td><td>301308</td><td>江波龙</td><td class="n">100</td><td class="n">528.00</td><td class="n">52,800</td><td class="n">13.73</td><td class="rs"></td></tr><tr class="r-buy"><td><span class="tg tg-buy">BUY</span></td><td>300283</td><td>温州宏丰</td><td class="n">5,700</td><td class="n">17.51</td><td class="n">99,807</td><td class="n">25.95</td><td class="rs"></td></tr><tr class="r-buy"><td><span class="tg tg-buy">BUY</span></td><td>601991</td><td>大唐发电</td><td class="n">16,600</td><td class="n">6.00</td><td class="n">99,600</td><td class="n">25.90</td><td class="rs"></td></tr><tr class="r-buy"><td><span class="tg tg-buy">BUY</span></td><td>001309</td><td>德明利</td><td class="n">100</td><td class="n">631.11</td><td class="n">63,111</td><td class="n">16.41</td><td class="rs"></td></tr><tr class="r-buy"><td><span class="tg tg-buy">BUY</span></td><td>603629</td><td>利通电子</td><td class="n">500</td><td class="n">167.55</td><td class="n">83,775</td><td class="n">21.78</td><td class="rs"></td></tr></tbody>
+    </table></div>
+  </details>
+  </div>
+
+  <!-- 今日信号 -->
+  <div id="pnl-signals" class="panel">
+    <div class="card">
+      <h2>今日信号排名 (前10)</h2>
+      <div class="tbl-w">
+      <table><thead><tr><th>#</th><th>代码</th><th>名称</th><th class="n">总分</th><th class="n">m5</th><th class="n">m20</th><th class="n">ROE</th><th class="n">缺口</th></tr></thead><tbody><tr class="hl"><td>▶1</td><td>301308</td><td>江波龙</td><td class="n"><b>0.6455</b></td><td class="n">0.091</td><td class="n">0.073</td><td class="n">0.082</td><td class="n">0.150</td></tr><tr class="hl"><td>▶2</td><td>300283</td><td>温州宏丰</td><td class="n"><b>0.6227</b></td><td class="n">0.182</td><td class="n">0.091</td><td class="n">0.018</td><td class="n">0.082</td></tr><tr class="hl"><td>▶3</td><td>601991</td><td>大唐发电</td><td class="n"><b>0.5955</b></td><td class="n">0.145</td><td class="n">0.045</td><td class="n">0.000</td><td class="n">0.136</td></tr><tr class="hl"><td>▶4</td><td>001309</td><td>德明利</td><td class="n"><b>0.5545</b></td><td class="n">0.055</td><td class="n">0.064</td><td class="n">0.100</td><td class="n">0.109</td></tr><tr class="hl"><td>▶5</td><td>603629</td><td>利通电子</td><td class="n"><b>0.5136</b></td><td class="n">0.164</td><td class="n">0.100</td><td class="n">0.064</td><td class="n">0.027</td></tr><tr class=""><td>6</td><td>688400</td><td>凌云光</td><td class="n"><b>0.4955</b></td><td class="n">0.200</td><td class="n">0.055</td><td class="n">0.009</td><td class="n">0.055</td></tr><tr class=""><td>7</td><td>603256</td><td>宏和科技</td><td class="n"><b>0.4727</b></td><td class="n">0.127</td><td class="n">0.082</td><td class="n">0.027</td><td class="n">0.000</td></tr><tr class=""><td>8</td><td>002805</td><td>丰元股份</td><td class="n"><b>0.4409</b></td><td class="n">0.109</td><td class="n">0.036</td><td class="n">0.045</td><td class="n">0.041</td></tr><tr class=""><td>9</td><td>688525</td><td>佰维存储</td><td class="n"><b>0.4364</b></td><td class="n">0.000</td><td class="n">0.018</td><td class="n">0.091</td><td class="n">0.123</td></tr><tr class=""><td>10</td><td>600719</td><td>大连热电</td><td class="n"><b>0.4136</b></td><td class="n">0.036</td><td class="n">0.027</td><td class="n">0.073</td><td class="n">0.014</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 持仓 -->
+  <div id="pnl-positions" class="panel">
+    <div class="card">
+      <h2>当前持仓 (5/5)</h2>
+      <div class="tbl-w">
+      <table><thead><tr><th>代码</th><th>名称</th><th class="n">股数</th><th class="n">成本</th><th class="n">止损</th><th class="n">止盈</th><th class="n">买入日</th></tr></thead><tbody><tr><td>301308</td><td>江波龙</td><td class="n">100</td><td class="n">528.00</td><td class="n">501.60</td><td class="n">712.80</td><td>2026-05-11</td></tr><tr><td>300283</td><td>温州宏丰</td><td class="n">5,700</td><td class="n">17.51</td><td class="n">16.63</td><td class="n">23.64</td><td>2026-05-11</td></tr><tr><td>601991</td><td>大唐发电</td><td class="n">16,600</td><td class="n">6.00</td><td class="n">5.70</td><td class="n">8.10</td><td>2026-05-11</td></tr><tr><td>001309</td><td>德明利</td><td class="n">100</td><td class="n">631.11</td><td class="n">599.55</td><td class="n">852.00</td><td>2026-05-11</td></tr><tr><td>603629</td><td>利通电子</td><td class="n">500</td><td class="n">167.55</td><td class="n">159.17</td><td class="n">226.19</td><td>2026-05-11</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全部交割单 -->
+  <div id="pnl-all" class="panel">
+    <div class="card">
+      <h2>全部交割单 (5笔)</h2>
+      <div class="tbl-w">
+      <table><thead><tr><th>日期</th><th>方向</th><th>代码</th><th>名称</th><th class="n">股数</th><th class="n">价格</th><th class="n">金额</th><th class="n">费用</th></tr></thead><tbody><tr class="r-buy"><td>2026-05-11</td><td><span class="tg tg-buy">BUY</span></td><td>603629</td><td>利通电子</td><td class="n">500</td><td class="n">167.55</td><td class="n">83,775</td><td class="n">21.78</td></tr><tr class="r-buy"><td>2026-05-11</td><td><span class="tg tg-buy">BUY</span></td><td>001309</td><td>德明利</td><td class="n">100</td><td class="n">631.11</td><td class="n">63,111</td><td class="n">16.41</td></tr><tr class="r-buy"><td>2026-05-11</td><td><span class="tg tg-buy">BUY</span></td><td>601991</td><td>大唐发电</td><td class="n">16,600</td><td class="n">6.00</td><td class="n">99,600</td><td class="n">25.90</td></tr><tr class="r-buy"><td>2026-05-11</td><td><span class="tg tg-buy">BUY</span></td><td>300283</td><td>温州宏丰</td><td class="n">5,700</td><td class="n">17.51</td><td class="n">99,807</td><td class="n">25.95</td></tr><tr class="r-buy"><td>2026-05-11</td><td><span class="tg tg-buy">BUY</span></td><td>301308</td><td>江波龙</td><td class="n">100</td><td class="n">528.00</td><td class="n">52,800</td><td class="n">13.73</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="foot">V8策略 模拟实盘 &nbsp;|&nbsp; 更新于 2026-05-11 23:32 &nbsp;|&nbsp; 初始资金 ¥500,000</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('panel-on'));
+  document.getElementById('pnl-'+name).classList.add('panel-on');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-on'));
+  event.target.classList.add('tab-on');
+}
+</script>
+</body>
+</html>
