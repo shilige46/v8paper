@@ -51,7 +51,9 @@ Examples showing why each search layer matters:
 - JSP-000314: official PR activity plus a large existing `plby` Erdős 380 development;
 - JSP-000958: official PR #144 carries full public formalization evidence despite the stale catalog snapshot;
 - JSP-000653: official PR #732 and earlier scoped formal evidence;
-- JSP-000500: official PR #80 covers the `r=7` case and public SAT/certificate work covers additional cases.
+- JSP-000500: official PR #80 covers the `r=7` case and public SAT/certificate work covers additional cases;
+- JSP-000585: official PR #432 already formalizes and verifies the explicit 15-vertex Catlin graph, including chromatic number 8 and exact subdivision cutoff 7; the full catalog problem is broader, so this is not an attractive fresh target;
+- JSP-000884: official PRs #117 and #824 already contain Lean work on totient-inequality components, so the apparently simple finite witness direction is occupied.
 
 This is not an exhaustive blacklist. The race state changes daily.
 
