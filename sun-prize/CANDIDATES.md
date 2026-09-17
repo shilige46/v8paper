@@ -1,39 +1,112 @@
-# Sun Prize formalization shortlist
+# Sun Prize opportunity board
 
 Snapshot date: 2026-09-18  
-Pinned official source: `TheJustinSunPrize/awards@ff33abd13163e789790eb1014e55f57c05f94432`
+Pinned catalog source: `TheJustinSunPrize/awards@ff33abd13163e789790eb1014e55f57c05f94432`
 
-This ordering is an **engineering work queue**, not a judgment of mathematical importance and not a prediction of prize payment. Every row below is `Solved / Lean proof = No / Eligible to claim = No` in the pinned catalog. Race checks are time-sensitive and must be repeated immediately before proof work or submission.
+> **Status:** the original Top-10 formalization shortlist is retired. A deeper race audit showed that catalog field `Lean proof = No` is not a reliable indicator that a problem is unoccupied. Many problems already have complete public Lean developments, official PRs, or evidence-registration issues that have not yet propagated into the pinned catalog.
 
-## Top 10
+This file is now a **race-first opportunity board**. We do not start proof work until a candidate passes the competition gates below.
 
-| Queue | JSP | Area | Public proof/source profile | Lean infrastructure already located | Main bottleneck | Race check (2026-09-18) | Pinned eligibility | Next feasibility experiment |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Primary 1** | **JSP-000897** | Extremal graph theory / Turán | Bollobás–Thomason 1981; Bondy 1983 note. Finite neighborhood-density theorem; Bondy's formulation is only a few pages. | `SimpleGraph.Extremal.Turan`, `Finite`, `neighborFinset`, induced-subgraph edge counting. | Align the JSP statement exactly with the paper's `t_r(n)` formulation and transport Turán counts to an induced neighborhood. | No dedicated JSP repository located by repository-name search. | No | State the Bondy theorem in Lean using `turanGraph`; prove a toy `r = 2` neighborhood case without new axioms. |
-| **Primary 2** | **JSP-000698** | Graph coloring | Fleischner–Stiebitz 1992, cycle-plus-triangles 3-colouring/list-colouring theorem. Later literature explicitly identifies the proof as Alon–Tarsi / Combinatorial Nullstellensatz based. | `SimpleGraph.Coloring.Vertex`, `SimpleGraph.Hamiltonian`, `Mathlib.Combinatorics.Nullstellensatz`. | Encoding the cycle-plus-triangles decomposition and reproducing the polynomial coefficient/nonvanishing argument. | No dedicated JSP repository located. | No | Formalize the CPT graph data structure and verify that the needed Combinatorial Nullstellensatz API can express the coefficient step. |
-| **Primary 3** | **JSP-000657** | Graph / Ramsey theory | Noga Alon 1994, *Subdivided graphs have linear Ramsey numbers*, 5 pages; proves Ramsey number at most `12n` under the stated degree-adjacency condition. | Finite simple graphs, subgraphs, coloring primitives; general combinatorial infrastructure. | Mathlib does not expose this exact finite graph Ramsey-number package as a ready theorem; definitions and the short combinatorial argument must be built. | No dedicated JSP repository located. | No | Encode the paper's high-degree-vertices-independent hypothesis and formalize the first structural lemma before introducing a Ramsey-number wrapper. |
-| **Primary 4** | **JSP-000845** | Graph / Ramsey packing | Burr–Erdős–Spencer 1975; multiple-copy Ramsey theorem, including exact evaluations for disjoint triangles. | `SimpleGraph.Matching` plus finite graph/subgraph/coloring tools. | Representing families of vertex-disjoint monochromatic cliques and matching the exact scoped JSP claim to the general multiple-copy theorem. | No dedicated JSP repository located. | No | Define `mG` as a disjoint-copy embedding predicate and prove the packing bookkeeping lemma independently of Ramsey bounds. |
-| **Secondary 1** | **JSP-000896** | Multipartite graph theory | Official record cites multipartite clique/list-colouring/transversal results including Haxell 2001. | `SimpleGraph.CompleteMultipartite` / `completeEquipartiteGraph`, coloring and finite set infrastructure. | Source-to-statement scope needs confirmation; proof may pass through independent transversals/list colouring rather than a direct Turán argument. | No dedicated JSP repository located. | No | Restate the balanced multipartite minimum-degree theorem on `completeEquipartiteGraph` and identify the exact independent-transversal lemma needed. |
-| **Secondary 2** | **JSP-000842** | Graph cycles | Bondy 1971 *Large cycles in graphs* proves a sharp long-cycle consequence of an edge threshold; finite theorem. | `SimpleGraph.Hamiltonian`, walks/paths/cycles, degree and finite edge counts. | Circumference / “cycle of length n-1” style extremal lemmas are not ready-made and require substantial walk/cardinality work. | No dedicated JSP repository located. | No | Formalize the exact target cycle-length statement and prove small helper lemmas converting path support cardinality to the JSP cycle notion. |
-| **Secondary 3** | **JSP-000641** | Additive combinatorics | Brown–Erdős–Freedman 1990, *Quasi-progressions and descending waves*, 15 pages; finite 2-colouring / descending-wave threshold problem. | Finsets, finite colorings, sequences, arithmetic; no specialized theorem needed to start. | Significant custom definitions and exact threshold bookkeeping; less reusable graph API. | No dedicated JSP repository located. | No | Define a descending wave and brute-check/prove the first nontrivial threshold cases in Lean to validate the statement encoding. |
-| **Secondary 4** | **JSP-000661** | Graph independence / Ramsey type | Alon–Sudakov 2007, 9 pages; local independent-set assumptions imply global asymptotic bounds. | Finite simple graph and independent-set primitives; real/logarithm asymptotic library exists separately. | Mixes graph combinatorics with logarithms/asymptotics; likely much more proof plumbing than the four primary targets. | No dedicated JSP repository located. | No | Separate the finite combinatorial lemma from asymptotic estimates and test whether the finite lemma can be stated without real-analysis overhead. |
-| **Watch 1** | **JSP-000672** | Graph cycles / critical graphs | 1988 and 2017 sources on graphs with no proper minimum-degree-3 subgraphs and short cycles. | Finite graph, degree, subgraph, cycle infrastructure. | The later literature disproves/refines related conjectures; exact JSP scope must be reconciled before any Lean work. | No dedicated JSP repository located. | No | Reconstruct the exact solved statement from the catalog's cited sources and compare it line-by-line with the theorem to formalize. |
-| **Watch 2** | **JSP-000838** | Graph orientations / probabilistic combinatorics | Nešetřil–Rödl 1978 is a short paper, but its method is explicitly probabilistic and solves a broader Erdős–Ore problem. | Directed/undirected graph basics and probability libraries exist, but no direct target theorem located. | The probabilistic existence argument and theorem-scope mapping may dwarf the short paper length. | No dedicated JSP repository located. | No | Verify the exact implication from the cited paper to the catalog statement before investing in probability formalization. |
+## Hard gate before any work
 
-## Why JSP-000897 is the first experiment
+For every candidate, check all of the following immediately before investing engineering time:
 
-It has the best combination found so far of:
+1. exact JSP id in official `TheJustinSunPrize/awards` pull requests;
+2. exact JSP id and original Erdős number in official issues/evidence batches;
+3. dedicated public GitHub repositories;
+4. global GitHub code search using JSP id, Erdős number, title and source-paper phrases;
+5. `plby/lean-proofs` / Formal Conjectures directly by original Erdős number and theorem title;
+6. very recent public work (new repositories, papers, SAT searches, proof ports and verification packages).
 
-1. **finite statement** — no limits, measure theory, analytic number theory, or arithmetic geometry;
-2. **short published argument** — the 1983 Bondy note states a sharp neighborhood version of Turán's theorem;
-3. **excellent Mathlib overlap** — Mathlib already formalizes Turán graphs/theorem, finite graph neighborhoods, induced subgraphs, edge cardinalities and degrees;
-4. **low visible race signal** — unlike JSP-000301/288/307/690/839/840/945/1018/1021, the repository-name search did not reveal a dedicated JSP-000897 formalization repository at inspection time;
-5. **reusable investment** — any missing neighborhood/Turán lemmas can help several other graph candidates.
+Any confirmed complete prior formalization moves the target to **NO-GO**, even if the official catalog still says `Lean proof = No`.
 
-## Explicit exclusions from this first queue
+## NO-GO — do not spend proof time
 
-The tempting finite-counterexample problems are not automatically best targets anymore. Public Lean work was already located for JSP-000288, JSP-000301, JSP-000307, JSP-000640, JSP-000673, JSP-000689, JSP-000690, JSP-000839, JSP-000840, JSP-000945, JSP-001018 and JSP-001021. We therefore avoid competing blindly on those unless a future race check shows the visible attempts are invalid or abandoned.
+The previous shortlist is no longer actionable.
 
-## Data status caveat
+| JSP | Why retired |
+| --- | --- |
+| JSP-000897 | Multiple official submissions (`#155`, `#439`, `#736`) plus an earlier complete public `plby/lean-proofs` development (`Erdos1079.lean`). |
+| JSP-000698 | Official Lean submissions/evidence already exist. |
+| JSP-000657 | Existing public Lean source has been registered in the official evidence flow. |
+| JSP-000845 | Existing `plby` proof/evidence registration found. |
+| JSP-000896 | Official PR / complete proof evidence found. |
+| JSP-000842 | Multiple official formalization submissions found. |
+| JSP-000641 | Public Lean evidence already exists. |
+| JSP-000661 | Official issue records a complete public Lean proof and replay evidence. |
+| JSP-000672 | Official PR / `plby` proof found. |
+| JSP-000838 | Existing public Lean proof is in official evidence batches. |
 
-The parser/synchronizer/dataset/triage code is implemented and unit-tested, but this ChatGPT execution runtime cannot make the raw GitHub download needed to materialize the full offline 1,022-file snapshot dataset. The shortlist above was therefore produced by direct inspection of the pinned official GitHub records plus live GitHub race searches. `data/problems.jsonl`, `data/candidates.csv`, and `data/triage.csv` must not be represented as generated until `sync_official.py` successfully runs in a network-capable environment.
+Additional examples eliminated during the deep audit include JSP-000760 (`plby` Erdős 916), JSP-000916 (`plby` Erdős 1105), JSP-000632 (`plby` Erdős 771), JSP-000601 (`plby` Erdős 733), JSP-000622/623 (`plby` Erdős 758/759), JSP-000837 (`plby` Erdős 1005), JSP-000907 (official PR `#274` plus stronger `plby` proof), JSP-000314 (`plby` Erdős 380 plus official PR), JSP-000653, JSP-000958, JSP-000455, JSP-000428, JSP-000475, JSP-000476, JSP-000521, JSP-000588, JSP-000514, JSP-000511, JSP-000725, JSP-000728, JSP-000733, JSP-000640, JSP-000619, JSP-000637, JSP-000673, JSP-000689, JSP-000690, JSP-000839, JSP-000840, JSP-000945, JSP-001018, JSP-001021 and most of the obvious solved/Lean-No tail entries.
+
+## Public formalization gaps found, but not worth first attack
+
+These passed the public-race checks performed so far, but fail our time-value test because the mathematical proof stack is too heavy.
+
+| JSP | Visible race | Why deferred |
+| --- | --- | --- |
+| JSP-000503 | No exact official PR/issue or dedicated Lean repository located in the audit | 2025 solution *Cyclic subsets in regular Dirac graphs* uses dense Hamiltonian graph machinery, stability, probability/regularity and asymptotics. A genuine gap, but expensive to formalize. |
+| JSP-000814 | No exact official PR and no matching `plby` proof located | Character sums / analytic number theory / asymptotics. High infrastructure cost. |
+| JSP-000966 | No exact official PR and no matching `plby` proof located | The 2025 solution on the most probable order of a random permutation uses local limit/probabilistic number theory machinery. High formalization cost. |
+| JSP-000589 | No strong race signal located in the first audit | Finite-looking statement, but the underlying asymmetric van der Waerden/additive-Ramsey proof is deep enough that it is not a cheap formalization arbitrage. |
+| JSP-000747 | No exact race signal found | Upper-bound side relies on deep multiplicative-number-theory results; poor first target. |
+
+These are **reserve research gaps**, not active targets.
+
+## Falsifiable/open-problem track
+
+We also screened open problems for a different strategy: find a finite counterexample by SAT/MILP/enumeration, then formalize a small certificate. This could capture mathematical-solver value rather than merely duplicating an old proof.
+
+Several apparently attractive targets are already crowded:
+
+- JSP-000826 / Erdős 993 (tree independence-polynomial unimodality): multi-billion-tree exhaustive searches and active public projects;
+- JSP-000500 / Erdős 617: public SAT/certificate work and official `r = 7` Lean submission;
+- JSP-000134 / Erdős 128: multiple AI/SAT research campaigns;
+- JSP-000082 / Erdős–Gyárfás power-of-two cycle conjecture: active SAT and structural work in 2026;
+- JSP-000244 / Erdős 287: exact search and arithmetic pruning already force any counterexample to astronomically large parameters;
+- JSP-000395 / Erdős 488: multiple agentic/Lean research projects;
+- related classic finite-graph targets such as Gallai path decomposition are also under active computational study.
+
+We will not duplicate these searches unless new evidence shows an exploitable gap.
+
+## Low-cost background probe — JSP-000639 / Erdős 612
+
+**Status:** low visible competition, but not a main green-light target.
+
+Question: for `P = p₁⋯pₙ`, the product of the first `n` primes, must there always be a prime `p` with `pₙ < p < P` for which `P + p` is also prime?
+
+Race audit on 2026-09-18:
+
+- no exact official JSP-000639 PR located;
+- no exact official JSP-000639 issue located;
+- no dedicated repository located by JSP/Erdős-number search;
+- no clear public computational campaign surfaced in the first global code search.
+
+A preliminary disposable runtime probe checked `n = 2..100` and found a witness for every tested `n`, usually after only a modest number of candidate primes. This is **not a proof and is not a persisted verification artifact**. It suggests small-`n` counterexamples are unlikely and that the conjectured witness may be abundant.
+
+Decision: keep this as a cheap/background computational probe only. Stop immediately if witness search cost grows without structural evidence of a counterexample.
+
+## Current decision
+
+**There is no main target with a green light yet.**
+
+That is preferable to spending days reproducing work that already exists or formalizing a theorem whose infrastructure cost dominates any realistic opportunity. The next target must simultaneously satisfy:
+
+- no complete public formalization / official submission found after the full hard-gate search;
+- no heavily active computational race if it is an open/falsifiable problem;
+- proof or counterexample search has a bounded first experiment that can fail cheaply;
+- the result would address the full original JSP problem, not just a scoped lemma or a special case;
+- a successful result can be verified reproducibly and converted into a clean public submission quickly.
+
+## Next screening direction
+
+Prioritize two pools:
+
+1. **recently solved 2025–2026 problems** whose solution is short enough to formalize but has not yet reached `plby` / official PRs;
+2. **open, finitely falsifiable problems** with low visible competition and a genuinely cheap SAT/enumeration search space.
+
+Do not return to the retired shortlist without rerunning the complete race audit.
+
+## Data caveat
+
+The parser/synchronizer/dataset/triage code is implemented and unit-tested, but this ChatGPT execution runtime could not materialize the full offline 1,022-entry raw snapshot through the local network path. Therefore the race audit combines the pinned official records with live GitHub/official-PR/issue/code searches. `data/problems.jsonl`, `data/candidates.csv`, and `data/triage.csv` must not be represented as generated until the synchronizer runs successfully in a network-capable environment.
