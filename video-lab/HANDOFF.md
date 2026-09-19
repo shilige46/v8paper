@@ -33,7 +33,7 @@ Hypit 是主框架；Dola 首轮采用人工文件交接，不声称存在免费
 | Dola | 未登录、未提交任务 | 模型、时长、画幅、额度、费用和输出均未知 |
 | TikTok | 未检查用户实际登录会话 | 候选、下载能力尚未验证 |
 
-上游 main 的 package.json 标记 @hypit/hypit 0.2.7；这是源码元数据，不是本机安装版本或已验证发布包。上游本地渲染组件声明 HyperFrames engine/producer 0.7.101、推荐 Chrome Headless Shell 152.0.7928.2。实际准备时以选定发布包的声明为准，不混配 main 与发布包。
+上游 main 的 package.json 标记 @hypit/hypit 0.2.7；这是源码元数据，不是本机安装版本或已验证发布包。另一次 npm registry 发布元数据只读请求持续未返回，已取消；未下载包，发布版本仍待核验，不能据此断言 npm 整体不可用。上游本地渲染组件声明 HyperFrames engine/producer 0.7.101、推荐 Chrome Headless Shell 152.0.7928.2。实际准备时以选定发布包的声明为准，不混配 main 与发布包。
 
 已执行的只读检查包括：GitHub fetch_file 与目录/提交 API；Get-Command；Node/npm/uv/Python 版本；npm list -g --depth=0；nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader；限定目录的文件搜索和磁盘空闲检查。未执行安装、构建、渲染、媒体测试或生成任务。TikTok 下载帮助网页未完整读到；官方保存入口需在实际账号界面核验。
 
